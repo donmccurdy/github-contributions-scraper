@@ -2,9 +2,12 @@ var fetch = require('node-fetch'),
     assert = require('assert'),
     fs = require('fs');
 
-assert.ok(process.argv[2], 'Usage: node github-contributions-scraper.js <output-file>');
+var user = process.argv[2],
+    file = process.argv[3];
 
-fetch('https://github.com/users/donmccurdy/contributions')
+assert.ok(user && file, 'Usage: node github-contributions-scraper.js <user> <output.json>');
+
+fetch('https://github.com/users/{user}/contributions'.replace('{user}', user))
   .then((res) => res.text())
   .then(loadGraph);
 
@@ -18,7 +21,7 @@ function loadGraph (text) {
       date: match.match(/data-date="(\d{4}-\d{2}-\d{2})"/)[1]
     };
   });
-  fs.writeFile(process.argv[2], JSON.stringify(data, null, 2), function (err) {
+  fs.writeFile(file, JSON.stringify(data, null, 2), function (err) {
     if (err) console.error(err);
     else console.info('Exported %d days\' events', data.length);
   });
